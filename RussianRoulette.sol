@@ -48,15 +48,7 @@ contract RussianRoulette {
     }
     function addPlayer (address player) public newPlayer (player)
     {
-         for (uint i = 0; i < players.length; i++)
-        {
-            if (players[i] == address(0))
-            {
-              players[i] = player; 
-              break; 
-            }
-        }
-
+        players.push(player);
     }
     function lose (address player) private 
     {
@@ -64,8 +56,7 @@ contract RussianRoulette {
        delete players;
     }
     function random() public view returns (uint256) {
-      uint256 store =  (block.timestamp/1000);
-      store = ((store * (block.timestamp % 98949)*(block.timestamp % 123213)*(block.timestamp % 32))) %(odds)+1;
+      uint256 store =  ((block.timestamp % odds)*(72*block.timestamp)) %(odds) +1; 
       return store; 
 }
     function play ()  public
