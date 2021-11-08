@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
 
@@ -11,8 +12,6 @@ contract RussianRoulette {
     
     constructor(address conCreate) {
         creator = conCreate; 
-        players = new address [] (100); 
-        losers = new address [] (10000); 
     }
     
     modifier isCreator() {
@@ -26,21 +25,22 @@ contract RussianRoulette {
     }
     
     modifier newPlayer (address johnCena) {
-        require(contains(johnCena, players) && contains(johnCena, losers), "player is dead");
+        require(!contains(johnCena, players) && !contains(johnCena, losers), "player is dead");
         _;
     }
     
     
-    function contains (address search, address[] storage array) private view returns (bool) 
+    function contains (address search, address[] memory array) private pure returns (bool) 
     {
-       for (uint i = 0; i < array.length ; i++)
+       bool house; 
+       for (uint256 i = 0; i < array.length ; i++)
        {
             if (array[i] == search)
             {
-             return true; 
+              house = true;
             }
        }
-       return false; 
+       return house;
     }
     
     function setOdds (uint256 oneInThisMany) public isCreator {
@@ -60,34 +60,15 @@ contract RussianRoulette {
     }
     function lose (address player) private 
     {
-         for (uint i = 0; i < players.length; i++)
-        {
-           
-           if (players[i] == player)
-           {
-               for (uint j = 0; i < losers.length; j++)
-               {
-                   if (losers[j] == address(0))
-                   {
-                      losers[j] = player; 
-                      break; 
-                   }
-               }
-           }
-           
-            if (players[i] != address(0))
-            {
-              players[i] = address(0); 
-              break; 
-            }
-         }
+       losers.push(player); 
+       delete players;
     }
-    function random() private view returns (uint256) {
-      uint256 store =  (block.timestamp + 42);
-      store = ((store * (block.timestamp % 98949)*(block.timestamp % 123213)*(block.timestamp % 32))) %odds;
+    function random() public view returns (uint256) {
+      uint256 store =  (block.timestamp/1000);
+      store = ((store * (block.timestamp % 98949)*(block.timestamp % 123213)*(block.timestamp % 32))) %(odds)+1;
       return store; 
 }
-    function play () private 
+    function play ()  public
     {
         uint256 rando = random (); 
         if (rando == 1)
@@ -98,7 +79,7 @@ contract RussianRoulette {
         {
             playersTurn++; 
         }
-        }
+      }
     function isALoser (address person) public view returns (bool)
     {
         return contains(person, losers); 
